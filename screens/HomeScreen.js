@@ -9,7 +9,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkStationStatus = async () => {
       try {
-        const response = await fetch("http://192.168.0.107");
+        const response = await fetch("http://192.168.0.105");
         if (response.ok) {
           setStatus("Connected");
         } else {

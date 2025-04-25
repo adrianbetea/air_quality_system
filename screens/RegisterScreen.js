@@ -12,12 +12,15 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export const LoginScreen = () => {
+export const RegisterScreen = () => {
   const navigation = useNavigation();
   const [form, setForm] = useState({
+    username: "",
     email: "",
+    phone: "",
     password: "",
   });
+
   return (
     <ImageBackground
       style={styles.imageContainer}
@@ -26,6 +29,14 @@ export const LoginScreen = () => {
     >
       <SafeAreaView style={styles.pageContainer}>
         <View style={styles.formContainer}>
+          <Text style={styles.inputLabel}>Username</Text>
+          <TextInput
+            style={styles.inputControl}
+            value={form.username}
+            onChangeText={(username) => setForm({ ...form, username })}
+            placeholder="Ion"
+            placeholderTextColor="#6b7280"
+          ></TextInput>
           <Text style={styles.inputLabel}>Email address</Text>
           <TextInput
             autoCapitalize="none"
@@ -37,12 +48,22 @@ export const LoginScreen = () => {
             placeholder="ion@example.com"
             placeholderTextColor="#6b7280"
           ></TextInput>
+          <Text style={styles.inputLabel}>Phone</Text>
+          <TextInput
+            style={styles.inputControl}
+            value={form.phone}
+            keyboardType="phone-pad"
+            onChangeText={(phone) => setForm({ ...form, phone })}
+            placeholder="07xxxxxxxx"
+            maxLength={10}
+            placeholderTextColor="#6b7280"
+          ></TextInput>
           <Text style={styles.inputLabel}>Password</Text>
           <TextInput
             secureTextEntry
             style={styles.inputControl}
             value={form.password}
-            onChangeText={(email) => setForm({ ...form, password })}
+            onChangeText={(password) => setForm({ ...form, password })}
             placeholder="********"
             placeholderTextColor="#6b7280"
           ></TextInput>
@@ -53,11 +74,9 @@ export const LoginScreen = () => {
               <Text style={styles.buttonText}>Login</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("RegisterScreen")}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate("LoginScreen")}>
             <Text style={styles.formFooter}>
-              Don't have an account? Sign up
+              Already have an account? Login
             </Text>
           </TouchableOpacity>
         </View>
@@ -67,7 +86,7 @@ export const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  imageContainer: { flex: 1, width: "100%", height: "100%" },
+  imageContainer: { flex: 1 },
   pageContainer: {
     flex: 1,
     flexDirection: "column",
