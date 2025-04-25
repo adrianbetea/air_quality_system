@@ -11,6 +11,7 @@ import {
   Touchable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { BASE_URL } from "../env";
 
 export const LoginScreen = () => {
   const navigation = useNavigation();
@@ -18,6 +19,33 @@ export const LoginScreen = () => {
     email: "",
     password: "",
   });
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login success:", data);
+        navigation.navigate("HomeScreen");
+      } else {
+        console.warn("Login failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  };
+
   return (
     <ImageBackground
       style={styles.imageContainer}
@@ -42,13 +70,13 @@ export const LoginScreen = () => {
             secureTextEntry
             style={styles.inputControl}
             value={form.password}
-            onChangeText={(email) => setForm({ ...form, password })}
+            onChangeText={(password) => setForm({ ...form, password })}
             placeholder="********"
             placeholderTextColor="#6b7280"
           ></TextInput>
         </View>
         <View style={styles.formAction}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleLogin}>
             <View style={styles.button}>
               <Text style={styles.buttonText}>Login</Text>
             </View>

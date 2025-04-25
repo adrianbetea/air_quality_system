@@ -11,6 +11,7 @@ import {
   Touchable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { BASE_URL } from "../env";
 
 export const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -20,6 +21,34 @@ export const RegisterScreen = () => {
     phone: "",
     password: "",
   });
+
+  const handleRegister = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: form.username,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("User registered successfully:", data);
+        navigation.navigate("HomeScreen");
+      } else {
+        console.warn("Register failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Error during register:", error);
+    }
+  };
 
   return (
     <ImageBackground
@@ -69,9 +98,9 @@ export const RegisterScreen = () => {
           ></TextInput>
         </View>
         <View style={styles.formAction}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleRegister}>
             <View style={styles.button}>
-              <Text style={styles.buttonText}>Login</Text>
+              <Text style={styles.buttonText}>Register</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("LoginScreen")}>
