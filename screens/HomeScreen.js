@@ -389,7 +389,9 @@ export default function HomeScreen() {
         </View>
       </View>
       <View style={styles.menuContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("StatisticsScreen")}
+        >
           <Image
             source={require("../resources/dashboardIcon.png")}
             style={styles.logo}
@@ -401,7 +403,7 @@ export default function HomeScreen() {
             style={styles.logo}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("AlertScreen")}>
           <Image
             source={require("../resources/warningIcon.png")}
             style={styles.logo}
