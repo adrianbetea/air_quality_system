@@ -7,6 +7,7 @@ import { LoginScreen } from "./screens/LoginScreen";
 import { RegisterScreen } from "./screens/RegisterScreen";
 import { AlertScreen } from "./screens/AlertScreen";
 import { StatisticsScreen } from "./screens/StatisticsScreen";
+import { AlertInfo } from "./screens/AlertInfo";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -14,8 +15,18 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
+          name="AlertScreen"
+          component={AlertScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
           name="StatisticsScreen"
           component={StatisticsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AlertInfo"
+          component={AlertInfo}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -23,12 +34,6 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="AlertScreen"
-          component={AlertScreen}
-          options={{ headerShown: false }}
-        />
-
         <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}

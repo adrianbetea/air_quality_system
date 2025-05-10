@@ -2,40 +2,12 @@ import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export const AlertScreen = () => {
+export const AlertInfo = () => {
   const navigation = useNavigation();
   return (
     <View style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <Text style={styles.title}>Alerts</Text>
-        <View style={styles.alertContainer}>
-          <TouchableOpacity style={styles.cardContainer}></TouchableOpacity>
-        </View>
-      </View>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={{ fontSize: 20, fontWeight: "400" }}>Add new alert</Text>
-      </TouchableOpacity>
-      <View style={styles.menuContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("StatisticsScreen")}
-        >
-          <Image
-            source={require("../resources/dashboardIcon.png")}
-            style={styles.logo}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-          <Image
-            source={require("../resources/houseIcon.png")}
-            style={styles.logo}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("AlertScreen")}>
-          <Image
-            source={require("../resources/warningIcon.png")}
-            style={styles.logo}
-          />
-        </TouchableOpacity>
       </View>
     </View>
   );

@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("./database");
-const { parse } = require("@babel/core");
 
 SERVER_URL = "http://192.168.0.105";
 
