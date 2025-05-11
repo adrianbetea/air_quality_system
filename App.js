@@ -17,32 +17,34 @@ export default function App() {
         <Stack.Screen
           name="AlertScreen"
           component={AlertScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="StatisticsScreen"
-          component={StatisticsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="AlertInfo"
-          component={AlertInfo}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="HomeScreen"
-          component={HomeScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
+
+        <Stack.Screen
+          name="StatisticsScreen"
+          component={StatisticsScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="AlertInfo"
+          component={AlertInfo}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+
         <Stack.Screen
           name="RegisterScreen"
           component={RegisterScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

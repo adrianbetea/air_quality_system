@@ -11,6 +11,7 @@ import {
   Touchable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "../env";
 
 export const LoginScreen = () => {
@@ -37,6 +38,8 @@ export const LoginScreen = () => {
 
       if (response.ok) {
         console.log("Login success:", data);
+
+        await AsyncStorage.setItem("user_id", data.user_id.toString());
         navigation.navigate("HomeScreen");
       } else {
         console.warn("Login failed:", data.message);
