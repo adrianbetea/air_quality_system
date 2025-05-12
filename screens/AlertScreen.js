@@ -73,11 +73,7 @@ export const AlertScreen = () => {
               <View style={styles.infoContainer}>
                 <Text style={styles.cardTitle}>{alert.sensor_name}</Text>
                 <Text style={styles.cardText}>{alert.alert_description}</Text>
-                <Text style={styles.cardText}>
-                  {alert.alert_type === "once"
-                    ? "Alert Type: ONCE"
-                    : "Alert Type: RECURRENT"}
-                </Text>
+                <Text style={styles.cardText}>Alert Type: RECURRENT</Text>
                 <Text>
                   Date added:{" "}
                   {new Date(alert.date_added).toLocaleString("ro-RO", {
@@ -104,7 +100,10 @@ export const AlertScreen = () => {
           ))}
         </ScrollView>
       </View>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate("CreateAlert")}
+      >
         <Text style={{ fontSize: 20, fontWeight: "400", paddingVertical: 3 }}>
           Add new alert
         </Text>

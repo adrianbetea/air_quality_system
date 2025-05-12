@@ -10,14 +10,13 @@ import {
 import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BASE_URL } from "../env";
 
 export const AlertInfo = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { alert } = route.params;
-  const [toggleNotificationCheckBox, setToggleNotificationCheckBox] =
-    useState(false);
-
   const unitMap = [
     { key: "MQ2", value: "ppm" },
     { key: "MQ5", value: "ppm" },
@@ -28,10 +27,101 @@ export const AlertInfo = () => {
   ];
   const unit =
     unitMap.find((item) => item.key === alert.sensor_name)?.value ?? "";
-
+  const [toggleNotificationCheckBox, setToggleNotificationCheckBox] =
+    useState(false);
   const [toggleEmailCheckBox, setToggleEmailCheckBox] = useState(false);
-
   const [togglePhoneCheckBox, setTogglePhoneCheckBox] = useState(false);
+
+  const [userId, setUserId] = useState(null);
+
+  const [triggeredAlerts, setTriggeredAlerts] = useState(null);
+
+  useEffect(() => {
+    const fetchCheckboxStates = async () => {
+      if (!userId || !alert?.id_alert) return;
+
+      try {
+        const response = await fetch(
+          `${BASE_URL}/alert/get-checks?user_id=${userId}&id_alert=${alert.id_alert}`
+        );
+        const data = await response.json();
+
+        setToggleNotificationCheckBox(data.notification_check === 1);
+        setToggleEmailCheckBox(data.email_check === 1);
+        setTogglePhoneCheckBox(data.phone_check === 1);
+      } catch (error) {
+        console.error("Eroare la fetch inițial:", error);
+      }
+    };
+
+    fetchCheckboxStates();
+  }, [userId, alert?.id_alert]);
+
+  useEffect(() => {
+    const setDatabaseCheckbox = async () => {
+      if (!userId || !alert?.id_alert) return;
+
+      try {
+        const response = await fetch(`${BASE_URL}/alert/update-checks`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            id_alert: alert.id_alert,
+            notification_check: toggleNotificationCheckBox ? 1 : 0,
+            email_check: toggleEmailCheckBox ? 1 : 0,
+            phone_check: togglePhoneCheckBox ? 1 : 0,
+          }),
+        });
+
+        const result = await response.json();
+        console.log("Actualizat:", result);
+      } catch (error) {
+        console.error("Eroare la update:", error);
+      }
+    };
+
+    setDatabaseCheckbox();
+  }, [toggleNotificationCheckBox, toggleEmailCheckBox, togglePhoneCheckBox]);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem("user_id");
+        if (id !== null) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error("Eroare la citirea user_id:", error);
+      }
+    };
+
+    getUserId();
+  }, []);
+
+  useEffect(() => {
+    const fetchTriggeredAlerts = async () => {
+      try {
+        const response = await fetch(
+          `${BASE_URL}/alert/process-alerts?user_id=${userId}`
+        );
+
+        const data = await response.json();
+
+        const filteredAlerts = {
+          ...data,
+          dateleActualizate: data.dateleActualizate?.filter(
+            (a) => a.id_alert === alert.id_alert
+          ),
+        };
+
+        setTriggeredAlerts(filteredAlerts);
+      } catch (error) {}
+    };
+    fetchTriggeredAlerts();
+  }, [userId]);
 
   return (
     <View style={styles.pageContainer}>
@@ -46,7 +136,7 @@ export const AlertInfo = () => {
             source={require("../resources/backArrow.png")}
           />
         </TouchableOpacity>
-        <Text style={{ paddingBottom: 20, paddingRight: 60 }}>
+        <Text style={{ paddingBottom: 5, paddingRight: 75 }}>
           {alert.alert_description}
         </Text>
 
@@ -79,12 +169,12 @@ export const AlertInfo = () => {
         </View>
 
         <View>
-          <Text style={{ paddingTop: 10, fontSize: 18 }}>
-            {alert.sensor_name}
+          <Text style={{ paddingTop: 8, fontSize: 19 }}>
+            Alert condition: {alert.sensor_name}
             {alert.comparison_operator}
             {alert.sensor_alert_value}({unit})
           </Text>
-          <Text style={{ paddingTop: 4, fontSize: 18 }}>
+          <Text style={{ paddingTop: 4, fontSize: 19 }}>
             Date added:{" "}
             {new Date(alert.date_added).toLocaleString("ro-RO", {
               day: "2-digit",
@@ -94,8 +184,48 @@ export const AlertInfo = () => {
               minute: "2-digit",
             })}
           </Text>
+          <Text style={{ paddingTop: 10, fontSize: 19, alignSelf: "center" }}>
+            Times triggered
+          </Text>
         </View>
-        <ScrollView></ScrollView>
+        <View style={styles.timesTriggeredContainer}>
+          <ScrollView>
+            {!triggeredAlerts ||
+            triggeredAlerts.dateleActualizate?.length === 0 ? (
+              <Text
+                style={{
+                  alignSelf: "center",
+                  fontSize: 24,
+                  fontWeight: "500",
+                }}
+              >
+                Loading...
+              </Text>
+            ) : (
+              triggeredAlerts.dateleActualizate.map((alert, index) => (
+                <View key={index} style={{ paddingBottom: 10 }}>
+                  <Text style={{ fontSize: 19, fontWeight: "400" }}>
+                    {index + 1}.
+                  </Text>
+                  <Text style={{ fontSize: 18, fontWeight: "300" }}>
+                    Triggered at:{" "}
+                    {new Date(alert.triggered_at).toLocaleString()}
+                  </Text>
+                  <Text style={{ fontSize: 18, fontWeight: "300" }}>
+                    Stopped at: {new Date(alert.ended_at).toLocaleString()}
+                  </Text>
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </View>
+
+        <TouchableOpacity style={styles.updateButton}>
+          <Text>Update Alert</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.deleteButton}>
+          <Text>Delete Alert</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -119,8 +249,15 @@ const styles = StyleSheet.create({
   checkContainer: {
     width: "50%",
     flexDirection: "row",
-    paddingVertical: 9,
+    paddingVertical: 8,
     justifyContent: "space-between",
+  },
+  timesTriggeredContainer: {
+    marginTop: 6,
+    padding: 8,
+    height: 250,
+    borderRadius: 15,
+    borderWidth: 2,
   },
   title: {
     fontSize: 24,
@@ -133,10 +270,32 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   checkboxSize: { width: 28, height: 28 },
-  logo: { width: 60, height: 60 },
+  logo: { width: 65, height: 65 },
   backButton: {
     position: "absolute",
     top: 65,
     right: 25,
+  },
+  updateButton: {
+    width: "75%",
+    height: 55,
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderRadius: 30,
+    marginVertical: 16,
+    backgroundColor: "#c5e9f7",
+  },
+  deleteButton: {
+    width: "75%",
+    height: 55,
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderRadius: 30,
+    marginBottom: 40,
+    backgroundColor: "#c5e9f7",
   },
 });

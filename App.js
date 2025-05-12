@@ -8,6 +8,7 @@ import { RegisterScreen } from "./screens/RegisterScreen";
 import { AlertScreen } from "./screens/AlertScreen";
 import { StatisticsScreen } from "./screens/StatisticsScreen";
 import { AlertInfo } from "./screens/AlertInfo";
+import { CreateAlert } from "./screens/CreateAlert";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -17,6 +18,11 @@ export default function App() {
         <Stack.Screen
           name="AlertScreen"
           component={AlertScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="CreateAlert"
+          component={CreateAlert}
           options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
@@ -40,7 +46,6 @@ export default function App() {
           component={HomeScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
-
         <Stack.Screen
           name="RegisterScreen"
           component={RegisterScreen}
