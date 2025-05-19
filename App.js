@@ -26,14 +26,13 @@ export default function App() {
           options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{ headerShown: false, gestureEnabled: false }}
-        />
-
-        <Stack.Screen
           name="StatisticsScreen"
           component={StatisticsScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen

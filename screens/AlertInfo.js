@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
 import Checkbox from "expo-checkbox";
+import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,6 +19,7 @@ export const AlertInfo = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { alert } = route.params;
+  const [localAlert, setLocalAlert] = useState(alert);
   const unitMap = [
     { key: "MQ2", value: "ppm" },
     { key: "MQ5", value: "ppm" },
@@ -123,6 +126,34 @@ export const AlertInfo = () => {
     fetchTriggeredAlerts();
   }, [userId]);
 
+  const deleteAlert = async (alertId) => {
+    try {
+      const response = await axios.delete(
+        `${BASE_URL}/alert/delete-alert?id_alert=${alertId}`
+      );
+      console.log("Alert deleted:", response.data);
+      Alert.alert("Succes", "Alert deleted succesfully");
+      navigation.navigate("AlertScreen");
+    } catch (error) {
+      console.error("Error deleting alert: ", error);
+    }
+  };
+
+  const updateAlertValue = async (alertId, newValue) => {
+    try {
+      const response = await axios.put(`${BASE_URL}/alert/update-alert`, {
+        id_alert: alertId,
+        new_value: newValue,
+      });
+
+      console.log("Alert updated:", response.data);
+      Alert.alert("Success", "Alert updated successfully!");
+    } catch (error) {
+      console.error("Error updating alert:", error);
+      Alert.alert("Error", "Could not update alert.");
+    }
+  };
+
   return (
     <View style={styles.pageContainer}>
       <View style={styles.mainContainer}>
@@ -159,7 +190,7 @@ export const AlertInfo = () => {
           />
         </View>
         <View style={styles.checkContainer}>
-          <Text style={styles.checkBoxText}>Phone</Text>
+          <Text style={styles.checkBoxText}>Phone SMS</Text>
           <Checkbox
             style={styles.checkboxSize}
             value={togglePhoneCheckBox}
@@ -170,9 +201,9 @@ export const AlertInfo = () => {
 
         <View>
           <Text style={{ paddingTop: 8, fontSize: 19 }}>
-            Alert condition: {alert.sensor_name}
-            {alert.comparison_operator}
-            {alert.sensor_alert_value}({unit})
+            Condition: {localAlert.sensor_name}
+            {localAlert.comparison_operator}
+            {localAlert.sensor_alert_value} ({unit})
           </Text>
           <Text style={{ paddingTop: 4, fontSize: 19 }}>
             Date added:{" "}
@@ -190,8 +221,7 @@ export const AlertInfo = () => {
         </View>
         <View style={styles.timesTriggeredContainer}>
           <ScrollView>
-            {!triggeredAlerts ||
-            triggeredAlerts.dateleActualizate?.length === 0 ? (
+            {!triggeredAlerts ? (
               <Text
                 style={{
                   alignSelf: "center",
@@ -201,7 +231,7 @@ export const AlertInfo = () => {
               >
                 Loading...
               </Text>
-            ) : (
+            ) : !triggeredAlerts.dateleActualizate?.length === 0 ? (
               triggeredAlerts.dateleActualizate.map((alert, index) => (
                 <View key={index} style={{ paddingBottom: 10 }}>
                   <Text style={{ fontSize: 19, fontWeight: "400" }}>
@@ -216,14 +246,63 @@ export const AlertInfo = () => {
                   </Text>
                 </View>
               ))
+            ) : (
+              <Text
+                style={{
+                  alignSelf: "center",
+                  fontSize: 18,
+                  fontWeight: "400",
+                }}
+              >
+                This alert has not been triggered before.
+              </Text>
             )}
           </ScrollView>
         </View>
 
-        <TouchableOpacity style={styles.updateButton}>
-          <Text>Update Alert</Text>
+        <TouchableOpacity
+          style={styles.updateButton}
+          onPress={() => {
+            Alert.prompt(
+              "Update Alert Value",
+              "Change the alert value:",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "OK",
+                  onPress: (value) => {
+                    const numericValue = Number(value);
+                    if (!isNaN(numericValue)) {
+                      updateAlertValue(alert.id_alert, numericValue);
+                      setLocalAlert((prev) => ({
+                        ...prev,
+                        sensor_alert_value: numericValue,
+                      }));
+                    } else {
+                      Alert.alert(
+                        "Invalid Input",
+                        "Please enter a valid number."
+                      );
+                    }
+                  },
+                },
+              ],
+              "plain-text",
+              ""
+            );
+          }}
+        >
+          <Text>Update Alert Value</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteButton}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={async () => {
+            await deleteAlert(alert.id_alert);
+          }}
+        >
           <Text>Delete Alert</Text>
         </TouchableOpacity>
       </View>
