@@ -5,7 +5,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Svg, Circle, Text as SvgText } from "react-native-svg";
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 
 const sensorDropdown = [
   { label: "Temperature", value: "Temperature" },
@@ -65,7 +65,17 @@ export const StatisticsScreen = () => {
         );
         const data = await response.json();
 
-        const maxLabels = 7;
+        if (!Array.isArray(data) || data.length === 0) {
+          setRawData([]);
+          setChartData({
+            labels: [],
+            datasets: [{ data: [] }],
+            legend: [`${selectedSensor} Values`],
+          });
+          return;
+        }
+
+        const maxLabels = Math.min(7, data.length);
         const labelIndices = Array.from({ length: maxLabels }, (_, i) =>
           Math.floor((i * (data.length - 1)) / (maxLabels - 1))
         );

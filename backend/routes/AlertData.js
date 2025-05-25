@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const processAlerts = require("./alertProcess");
 const pool = require("./database");
+const cron = require("node-cron");
 
 SERVER_URL = "http://192.168.0.105";
 
@@ -118,94 +120,37 @@ router.get("/fetch-data", async (req, res) => {
   }
 });
 
-router.get("/process-alerts", async (req, res) => {
-  const userId = req.query.user_id;
+router.get("/fetch-triggered-alerts", async (req, res) => {
+  const idAlert = req.query.alert_id;
   try {
-    // 1. Ia datele de la ESP
-    const response = await axios.get(SERVER_URL, { timeout: 2000 });
-    const rawData = response.data;
-    const data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
-
-    // 2. Ia toate alertele din DB
-    const [alerts] = await pool.query("SELECT * FROM alerts");
-
-    // 3. Timpul curent
-    const now = new Date();
-    now.setHours(now.getHours() + 3); // ajustare fus orar, dacă e nevoie
-    const timestamp = now.toISOString().slice(0, 19).replace("T", " ");
-
-    // 4. Compară fiecare alertă cu valoarea senzorului corespunzător
-    if (!response) {
-      for (const alert of alerts) {
-        const {
-          sensor_name,
-          sensor_alert_value,
-          comparison_operator,
-          id_alert,
-        } = alert;
-        const value = data[sensor_name];
-
-        if (value === undefined) continue; // nu există valoarea acestui senzor în payload
-
-        const isTriggered =
-          (comparison_operator === ">" && value > sensor_alert_value) ||
-          (comparison_operator === "<" && value < sensor_alert_value);
-
-        if (isTriggered) {
-          // 5. Inserează doar daca NU exista o alerta activa declanșarea alertei
-          const [existingTriggers] = await pool.query(
-            "SELECT * FROM alert_triggers WHERE id_alert = ? AND ended_at IS NULL",
-            [id_alert]
-          );
-          if (existingTriggers.length === 0) {
-            await pool.query(
-              "INSERT INTO alert_triggers (id_alert, triggered_at) VALUES (?, ?)",
-              [id_alert, timestamp]
-            );
-          }
-        } else {
-          // Verificăm dacă există o alertă activă și o închidem (ended_at)
-          await pool.query(
-            "UPDATE alert_triggers SET ended_at = ? WHERE id_alert = ? AND ended_at IS NULL",
-            [timestamp, id_alert]
-          );
-        }
-      }
-    }
-
-    const [updatedData] = await pool.query(
-      `SELECT * FROM alert_triggers JOIN
-       alerts ON alert_triggers.id_alert = alerts.id_alert 
-       WHERE alerts.user_id = ?`,
-      [userId]
+    const [rows] = await pool.query(
+      `SELECT *
+       FROM alert_triggers
+       WHERE id_alert = ?`,
+      [idAlert]
     );
+    console.log(rows);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching triggered alerts:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
 
+router.post("/process-alerts", async (req, res) => {
+  try {
+    const updatedData = await processAlerts();
     res.json({
       message: "Verificare completă, alert_triggers actualizat",
       dateleActualizate: updatedData,
     });
   } catch (error) {
-    console.log("Eroare la procesarea alertelor:", error);
-    try {
-      const [fallbackData] = await pool.query(
-        `SELECT * FROM alert_triggers 
-         JOIN alerts ON alert_triggers.id_alert = alerts.id_alert 
-         WHERE alerts.user_id = ?`,
-        [userId]
-      );
-      updatedData = fallbackData;
-    } catch (dbError) {
-      console.log("Eroare la fallback query:", dbError.message);
-    }
-
     res.status(500).json({
-      message: "Eroare internă la server, dar am returnat datele existente",
+      message: "Eroare internă la procesarea alertelor",
       dateleActualizate: updatedData,
-      error: error.message,
     });
   }
 });
-
 router.put("/update-checks", async (req, res) => {
   const { user_id, id_alert, notification_check, email_check, phone_check } =
     req.body;

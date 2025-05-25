@@ -53,4 +53,20 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// routes/users.js sau direct într-un controller
+router.post("/save-push-token", async (req, res) => {
+  const { userId, expoPushToken } = req.body;
+
+  if (!userId || !expoPushToken) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  await pool.query(`UPDATE users SET expo_push_token = ? WHERE user_id = ?`, [
+    expoPushToken,
+    userId,
+  ]);
+
+  res.json({ success: true });
+});
+
 module.exports = router;

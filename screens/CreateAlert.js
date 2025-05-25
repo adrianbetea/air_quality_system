@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import axios from "axios";
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 import { Dropdown } from "react-native-element-dropdown";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";

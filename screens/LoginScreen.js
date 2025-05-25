@@ -12,10 +12,14 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BASE_URL } from "../env";
+import { usePushNotifications } from "../utils/usePushNotifications";
+
+BASE_URL = "http://192.168.0.104:3000";
 
 export const LoginScreen = () => {
   const navigation = useNavigation();
+  const { expoPushToken } = usePushNotifications();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -39,8 +43,21 @@ export const LoginScreen = () => {
       if (response.ok) {
         console.log("Login success:", data);
 
-        await AsyncStorage.setItem("user_id", data.user_id.toString());
         navigation.navigate("HomeScreen");
+        await AsyncStorage.setItem("user_id", data.user_id.toString());
+
+        if (expoPushToken) {
+          await fetch(`${BASE_URL}/auth/save-push-token`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: data.user_id,
+              expoPushToken: expoPushToken.data,
+            }),
+          });
+        }
       } else {
         console.warn("Login failed:", data.message);
       }

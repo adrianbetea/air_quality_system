@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 
 export const AlertScreen = () => {
   const navigation = useNavigation();
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   cardText: {
-    fontSize: "12",
+    fontSize: 12,
     paddingVertical: 3,
   },
   menuContainer: {

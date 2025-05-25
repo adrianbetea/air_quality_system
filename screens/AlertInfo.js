@@ -8,12 +8,14 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import Dialog from "react-native-dialog";
+import { Platform } from "react-native";
 import Checkbox from "expo-checkbox";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 
 export const AlertInfo = () => {
   const navigation = useNavigation();
@@ -37,7 +39,10 @@ export const AlertInfo = () => {
 
   const [userId, setUserId] = useState(null);
 
-  const [triggeredAlerts, setTriggeredAlerts] = useState(null);
+  const [triggeredAlerts, setTriggeredAlerts] = useState();
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     const fetchCheckboxStates = async () => {
@@ -108,23 +113,20 @@ export const AlertInfo = () => {
     const fetchTriggeredAlerts = async () => {
       try {
         const response = await fetch(
-          `${BASE_URL}/alert/process-alerts?user_id=${userId}`
+          `${BASE_URL}/alert/fetch-triggered-alerts?alert_id=${alert.id_alert}`
         );
-
+        console.log(alert.id_alert);
         const data = await response.json();
-
-        const filteredAlerts = {
-          ...data,
-          dateleActualizate: data.dateleActualizate?.filter(
-            (a) => a.id_alert === alert.id_alert
-          ),
-        };
-
-        setTriggeredAlerts(filteredAlerts);
-      } catch (error) {}
+        console.log(data);
+        setTriggeredAlerts(data);
+      } catch (error) {
+        console.error(error);
+        setTriggeredAlerts([]); // sau orice fallback vrei
+      }
     };
+
     fetchTriggeredAlerts();
-  }, [userId]);
+  }, []);
 
   const deleteAlert = async (alertId) => {
     try {
@@ -151,6 +153,55 @@ export const AlertInfo = () => {
     } catch (error) {
       console.error("Error updating alert:", error);
       Alert.alert("Error", "Could not update alert.");
+    }
+  };
+
+  const handlePress = () => {
+    if (Platform.OS === "ios") {
+      Alert.prompt(
+        "Update Alert Value",
+        "Change the alert value:",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "OK",
+            onPress: (value) => {
+              const numericValue = Number(value);
+              if (!isNaN(numericValue)) {
+                updateAlertValue(alert.id_alert, numericValue);
+                setLocalAlert((prev) => ({
+                  ...prev,
+                  sensor_alert_value: numericValue,
+                }));
+              } else {
+                Alert.alert("Invalid Input", "Please enter a valid number.");
+              }
+            },
+          },
+        ],
+        "plain-text",
+        ""
+      );
+    } else {
+      // Android: arătăm dialogul custom
+      setDialogVisible(true);
+    }
+  };
+
+  const handleDialogOk = () => {
+    const numericValue = Number(inputValue);
+    if (!isNaN(numericValue)) {
+      updateAlertValue(alert.id_alert, numericValue);
+      setLocalAlert((prev) => ({
+        ...prev,
+        sensor_alert_value: numericValue,
+      }));
+      setDialogVisible(false);
+    } else {
+      Alert.alert("Invalid Input", "Please enter a valid number.");
     }
   };
 
@@ -231,8 +282,8 @@ export const AlertInfo = () => {
               >
                 Loading...
               </Text>
-            ) : !triggeredAlerts.dateleActualizate?.length === 0 ? (
-              triggeredAlerts.dateleActualizate.map((alert, index) => (
+            ) : triggeredAlerts.length > 0 ? (
+              triggeredAlerts.map((alert, index) => (
                 <View key={index} style={{ paddingBottom: 10 }}>
                   <Text style={{ fontSize: 19, fontWeight: "400" }}>
                     {index + 1}.
@@ -242,7 +293,11 @@ export const AlertInfo = () => {
                     {new Date(alert.triggered_at).toLocaleString()}
                   </Text>
                   <Text style={{ fontSize: 18, fontWeight: "300" }}>
-                    Stopped at: {new Date(alert.ended_at).toLocaleString()}
+                    {" "}
+                    Stopped at:{" "}
+                    {alert.ended_at
+                      ? new Date(alert.ended_at).toLocaleString()
+                      : "Active"}
                   </Text>
                 </View>
               ))
@@ -260,47 +315,46 @@ export const AlertInfo = () => {
           </ScrollView>
         </View>
 
+        <TouchableOpacity style={styles.updateButton} onPress={handlePress}>
+          <Text>Update Alert Value</Text>
+        </TouchableOpacity>
+
+        <Dialog.Container visible={dialogVisible}>
+          <Dialog.Title>Update Alert Value</Dialog.Title>
+          <Dialog.Description>Change the alert value:</Dialog.Description>
+          <Dialog.Input
+            keyboardType="numeric"
+            onChangeText={(text) => setInputValue(text)}
+            value={inputValue}
+          />
+          <Dialog.Button
+            label="Cancel"
+            onPress={() => setDialogVisible(false)}
+          />
+          <Dialog.Button label="OK" onPress={handleDialogOk} />
+        </Dialog.Container>
+
         <TouchableOpacity
-          style={styles.updateButton}
+          style={styles.deleteButton}
           onPress={() => {
-            Alert.prompt(
-              "Update Alert Value",
-              "Change the alert value:",
+            Alert.alert(
+              "Confirm Delete",
+              "Are you sure you want to delete this alert?",
               [
                 {
                   text: "Cancel",
                   style: "cancel",
                 },
                 {
-                  text: "OK",
-                  onPress: (value) => {
-                    const numericValue = Number(value);
-                    if (!isNaN(numericValue)) {
-                      updateAlertValue(alert.id_alert, numericValue);
-                      setLocalAlert((prev) => ({
-                        ...prev,
-                        sensor_alert_value: numericValue,
-                      }));
-                    } else {
-                      Alert.alert(
-                        "Invalid Input",
-                        "Please enter a valid number."
-                      );
-                    }
+                  text: "Yes",
+                  onPress: async () => {
+                    await deleteAlert(alert.id_alert);
                   },
+                  style: "destructive",
                 },
               ],
-              "plain-text",
-              ""
+              { cancelable: true }
             );
-          }}
-        >
-          <Text>Update Alert Value</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={async () => {
-            await deleteAlert(alert.id_alert);
           }}
         >
           <Text>Delete Alert</Text>

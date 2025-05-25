@@ -5,7 +5,7 @@ const pool = require("./database");
 SERVER_URL = "http://192.168.0.105";
 
 // Endpoint to det data from server and save to database
-router.get("/save/sensor-data/to-database", async (req, res) => {
+router.post("/save/sensor-data/to-database", async (req, res) => {
   try {
     // Get data from server
     const response = await axios.get(SERVER_URL);

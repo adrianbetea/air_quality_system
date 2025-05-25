@@ -9,12 +9,34 @@ import { AlertScreen } from "./screens/AlertScreen";
 import { StatisticsScreen } from "./screens/StatisticsScreen";
 import { AlertInfo } from "./screens/AlertInfo";
 import { CreateAlert } from "./screens/CreateAlert";
+import "expo-dev-client";
+import { usePushNotifications } from "./utils/usePushNotifications";
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const { expoPushToken, notification } = usePushNotifications();
+
+  const data = JSON.stringify(notification, undefined, 2);
+
+  const sendTestNotification = async () => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Test notificare",
+        body: "Aceasta este o notificare de test.",
+        sound: "default",
+      },
+      trigger: { seconds: 1 },
+    });
+  };
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
         <Stack.Screen
           name="AlertScreen"
           component={AlertScreen}
@@ -30,11 +52,7 @@ export default function App() {
           component={StatisticsScreen}
           options={{ headerShown: false, gestureEnabled: false }}
         />
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{ headerShown: false, gestureEnabled: false }}
-        />
+
         <Stack.Screen
           name="AlertInfo"
           component={AlertInfo}

@@ -11,7 +11,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("Disconnected");

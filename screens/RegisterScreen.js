@@ -9,9 +9,10 @@ import {
   Image,
   ImageBackground,
   Touchable,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { BASE_URL } from "../env";
+BASE_URL = "http://192.168.0.104:3000";
 
 export const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -41,7 +42,8 @@ export const RegisterScreen = () => {
 
       if (response.ok) {
         console.log("User registered successfully:", data);
-        navigation.navigate("HomeScreen");
+        Alert.alert("Succes", "Account created succesfully");
+        navigation.navigate("LoginScreen");
       } else {
         console.warn("Register failed:", data.message);
       }
