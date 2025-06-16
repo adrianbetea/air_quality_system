@@ -13,8 +13,8 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePushNotifications } from "../utils/usePushNotifications";
-
-BASE_URL = "http://192.168.0.104:3000";
+const env = require("./../env.js");
+const BASE_URL = env.BASE_URL;
 
 export const LoginScreen = () => {
   const navigation = useNavigation();

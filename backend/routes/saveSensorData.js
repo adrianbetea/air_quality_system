@@ -1,7 +1,8 @@
 const axios = require("axios");
 const pool = require("./database");
+const env = require("../../env.js");
 
-const SERVER_URL = "http://192.168.0.105"; // ESP sau sursa de date
+const SERVER_URL = env.SERVER_URL;
 
 async function saveSensorData() {
   try {

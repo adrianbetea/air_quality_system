@@ -15,7 +15,8 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-BASE_URL = "http://192.168.0.104:3000";
+const env = require("./../env.js");
+const BASE_URL = env.BASE_URL;
 
 export const AlertInfo = () => {
   const navigation = useNavigation();

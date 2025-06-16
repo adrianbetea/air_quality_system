@@ -11,7 +11,9 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-BASE_URL = "http://192.168.0.104:3000";
+const env = require("./../env.js");
+const BASE_URL = env.BASE_URL;
+const SERVER_URL = env.SERVER_URL;
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("Disconnected");
@@ -195,7 +197,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkStationStatus = async () => {
       try {
-        const response = await fetch("http://192.168.0.105");
+        const response = await fetch(SERVER_URL);
         if (response.ok) {
           setStatus("Connected");
         } else {

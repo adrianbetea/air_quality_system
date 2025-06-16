@@ -5,7 +5,8 @@ import { Dropdown } from "react-native-element-dropdown";
 import { Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Svg, Circle, Text as SvgText } from "react-native-svg";
-BASE_URL = "http://192.168.0.104:3000";
+const env = require("./../env.js");
+const BASE_URL = env.BASE_URL;
 
 const sensorDropdown = [
   { label: "Temperature", value: "Temperature" },
@@ -82,7 +83,12 @@ export const StatisticsScreen = () => {
 
         const longRange = ["7d", "30d"].includes(selectedTime);
 
-        const values = data.map((entry) => entry.value);
+        const values = data
+          .map((entry) => {
+            const val = Number(entry.value);
+            return isNaN(val) ? null : val;
+          })
+          .filter((val) => val !== null);
         const labels = data.map((entry, index) => {
           if (!labelIndices.includes(index)) return "";
 

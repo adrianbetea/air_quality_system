@@ -10,11 +10,13 @@ const sensorDataRoute = require("./routes/SensorData");
 const authRoute = require("./routes/auth");
 const filterSensorDataRoute = require("./routes/FilterSensorData");
 const alertDataRoute = require("./routes/AlertData");
+const env = require("./../env.js");
 
 const app = express();
 const PORT = 3000;
 
-BASE_URL = "http://192.168.0.104:3000";
+const BASE_URL = env.BASE_URL;
+
 app.use(express.json());
 app.use("/sensor", sensorDataRoute);
 app.use("/auth", authRoute);

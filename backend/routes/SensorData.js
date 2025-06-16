@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("./database");
+const env = require("../../env.js");
 
-SERVER_URL = "http://192.168.0.105";
+const SERVER_URL = env.SERVER_URL;
 
 // Endpoint to det data from server and save to database
 router.post("/save/sensor-data/to-database", async (req, res) => {

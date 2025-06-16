@@ -3,9 +3,16 @@ const pool = require("./database");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const nodemailer = require("nodemailer");
+const twilio = require("twilio");
 const env = require("../../env.js");
+
 const MAIL_API = env.MAILTRAP_API;
-SERVER_URL = "http://192.168.0.105";
+const TWILIO_SID = env.TWILIO_SID;
+const TWILIO_AUTH_TOKEN = env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = env.TWILIO_PHONE_NUMBER;
+const SERVER_URL = env.SERVER_URL;
+
+const client = twilio(TWILIO_SID, TWILIO_AUTH_TOKEN);
 
 async function sendPushNotification(expoPushToken, title, body) {
   const message = {
@@ -31,22 +38,36 @@ async function sendPushNotification(expoPushToken, title, body) {
 
 async function sendEmail(user_email, alert_name, sensor_value) {
   const transporter = nodemailer.createTransport({
-    host: "live.smtp.mailtrap.io",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
-      user: "api",
-      pass: "9532f5f099bcdaeda9f6428cc34579c9",
+      user: "beteaadrian03@gmail.com",
+      pass: "egvkdwuvrdirrhmr",
     },
   });
 
   const info = await transporter.sendMail({
-    from: "alert@airqualitysystem.com",
+    from: "beteaadrian03@gmail.com",
     to: user_email,
     subject: `Alert Activated!!! ${alert_name}`,
     text: `${alert_name} activated, sensor value: ${sensor_value}`, // plain‑text body
   });
   console.log("MAIL TRIMIS!! la:", user_email);
+}
+
+async function sendSMS(user_phone, message) {
+  try {
+    const msg = await client.messages.create({
+      body: message,
+      from: TWILIO_PHONE_NUMBER,
+      to: user_phone,
+    });
+
+    console.log(`SMS trimis către ${user_phone}: ${msg.sid}`);
+  } catch (error) {
+    console.error(`Eroare SMS către ${user_phone}:`, error.message);
+  }
 }
 
 async function processAlerts() {
@@ -105,6 +126,16 @@ async function processAlerts() {
             `,
             [id_alert]
           );
+
+          const [sms_users] = await pool.query(
+            `SELECT u.user_id, u.email, u.phone, u.expo_push_token FROM USERS u
+            JOIN alerts a ON a.user_id = u.user_id
+            JOIN alert_triggers at ON a.id_alert = at.id_alert 
+            WHERE a.phone_check = 1 AND a.id_alert = ?
+            `,
+            [id_alert]
+          );
+
           const notifiedTokens = new Set();
 
           for (const user of notification_users) {
@@ -129,6 +160,17 @@ async function processAlerts() {
             await sendEmail(email, alert_name, value);
 
             emailTokens.add(email);
+          }
+
+          const smsSentNumbers = new Set();
+          for (const user of sms_users) {
+            const alrt_nm = `${sensor_name} ${comparison_operator} ${sensor_alert_value}`;
+            const msg = `Alertă ${sensor_name}!\nValoare actuală: ${value}\nPrag: ${comparison_operator} ${sensor_alert_value}`;
+            const phone = "+4" + user.phone;
+            if (phone && !smsSentNumbers.has(phone)) {
+              await sendSMS(phone, msg);
+              smsSentNumbers.add(phone);
+            }
           }
         }
       } else {

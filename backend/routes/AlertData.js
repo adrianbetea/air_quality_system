@@ -3,8 +3,9 @@ const router = express.Router();
 const processAlerts = require("./alertProcess");
 const pool = require("./database");
 const cron = require("node-cron");
+const env = require("../../env.js");
 
-SERVER_URL = "http://192.168.0.105";
+const SERVER_URL = env.SERVER_URL;
 
 router.post("/create-alert", async (req, res) => {
   const {
