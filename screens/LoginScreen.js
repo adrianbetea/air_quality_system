@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePushNotifications } from "../utils/usePushNotifications";
+import { Alert } from "react-native";
 const env = require("./../env.js");
 const BASE_URL = env.BASE_URL;
 
@@ -60,6 +61,7 @@ export const LoginScreen = () => {
         }
       } else {
         console.warn("Login failed:", data.message);
+        Alert.alert("Login failed", data.message);
       }
     } catch (error) {
       console.error("Error during login:", error);

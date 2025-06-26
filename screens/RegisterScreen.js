@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+
 const env = require("./../env.js");
 const BASE_URL = env.BASE_URL;
 
@@ -47,6 +48,7 @@ export const RegisterScreen = () => {
         navigation.navigate("LoginScreen");
       } else {
         console.warn("Register failed:", data.message);
+        Alert.alert("Register failed", data.message);
       }
     } catch (error) {
       console.error("Error during register:", error);
