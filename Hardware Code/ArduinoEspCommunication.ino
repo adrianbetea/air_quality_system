@@ -6,6 +6,7 @@
 #define MQ135_PIN A2
 #define GPY2_PIN A3
 #define DHT11_PIN 4
+#define STATUS_LED_PIN 10
 
 #define LED_POWER 7
 
@@ -52,6 +53,7 @@ void setup()
 {
     Serial.begin(38400);
     pinMode(LED_POWER, OUTPUT);
+    pinMode(STATUS_LED_PIN, OUTPUT);
 
     // Set ESP8266 baud rate
     EspSerial.begin(ESP8266_BAUD); // comunicarea cu ESP
@@ -59,6 +61,7 @@ void setup()
 
 void loop()
 {
+    digitalWrite(STATUS_LED_PIN, HIGH);
     MQ2_gas_sensor();
     MQ5_gas_sensor();
     MQ135_gas_sensor();
@@ -91,13 +94,14 @@ void loop()
         data = data + "}";
         EspSerial.println(data);
     }
-    delay(300);
+    delay(200);
+    digitalWrite(STATUS_LED_PIN, LOW);
     while (EspSerial.available())
     {
         String response = EspSerial.readStringUntil('\n');
         response.trim();
     }
-    delay(3700); // 4 secunde delay + 1s de la citiri
+    delay(3800); // 4 secunde delay + 1s de la citiri
 }
 
 void MQ2_gas_sensor()
