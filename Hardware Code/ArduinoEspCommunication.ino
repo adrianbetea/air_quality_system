@@ -27,7 +27,7 @@
 SoftwareSerial EspSerial(2, 3); // RX, TX
 
 // Your ESP8266 baud rate:
-#define ESP8266_BAUD 38400
+#define ESP8266_BAUD 19200
 
 dht DHT;
 // DHT11 variables
@@ -51,7 +51,7 @@ String data = "";
 
 void setup()
 {
-    Serial.begin(38400);
+    Serial.begin(19200);
     pinMode(LED_POWER, OUTPUT);
     pinMode(STATUS_LED_PIN, OUTPUT);
 
@@ -92,7 +92,9 @@ void loop()
             data = data + ", \"Humidity\": " + String(humidity);
         }
         data = data + "}";
-        EspSerial.println(data);
+        EspSerial.print(data);
+        EspSerial.print('\n');
+        // Serial.println(data);
     }
     delay(200);
     digitalWrite(STATUS_LED_PIN, LOW);

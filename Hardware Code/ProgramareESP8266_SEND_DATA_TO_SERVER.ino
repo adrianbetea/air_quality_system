@@ -8,19 +8,19 @@ String sensorData = "{}"; // Inițializare JSON gol
 
 void setup()
 {
-    Serial.begin(9600); // Trebuie să fie la fel ca pe Arduino
+    Serial.begin(19200); // Trebuie să fie la fel ca pe Arduino
     WiFi.begin(ssid, password);
 
     Serial.print("Conectare la WiFi...");
     while (WiFi.status() != WL_CONNECTED)
     {
-        delay(1000);
+        delay(500);
         // Serial.print(".");
     }
 
-    // Serial.println("\nConectat la WiFi!");
-    // Serial.print("IP ESP-01: ");
-    // Serial.println(WiFi.localIP());  // Afișează IP-ul ESP-01 în rețea
+    Serial.println("\nConectat la WiFi!");
+    Serial.print("IP ESP-01: ");
+    Serial.println(WiFi.localIP()); // Afișează IP-ul ESP-01 în rețea
 
     server.begin();
     // Serial.println("Server HTTP pornit.");
@@ -37,7 +37,7 @@ void loop()
         // Dacă browserul accesează serverul, trimitem datele JSON
         if (request.indexOf("GET /") >= 0)
         {
-            // Serial.println("Cerere de date primită!");
+            Serial.println("Cerere de date primită!");
 
             String response = "HTTP/1.1 200 OK\r\n";
             response += "Content-Type: application/json\r\n";
@@ -57,6 +57,6 @@ void loop()
     {
         sensorData = Serial.readStringUntil('\n'); // Citire linie completă
         sensorData.trim();                         // Elimină spațiile goale
-        // Serial.println("Date primite: " + sensorData);
+        Serial.println("Date primite: " + sensorData);
     }
 }
