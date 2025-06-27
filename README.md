@@ -24,7 +24,7 @@ cd air_quality_system
 Install Expo Go
 
 ```bash
-npm install expo
+npm install -g expo-cli
 ```
 Install node dependencies using the following command
 
