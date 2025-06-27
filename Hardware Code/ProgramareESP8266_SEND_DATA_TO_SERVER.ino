@@ -8,7 +8,7 @@ String sensorData = "{}"; // Inițializare JSON gol
 
 void setup()
 {
-    Serial.begin(38400); // Trebuie să fie la fel ca pe Arduino
+    Serial.begin(9600); // Trebuie să fie la fel ca pe Arduino
     WiFi.begin(ssid, password);
 
     Serial.print("Conectare la WiFi...");
