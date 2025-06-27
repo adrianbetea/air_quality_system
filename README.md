@@ -5,6 +5,7 @@
 * Backend: Node.js(Express and Axios)
 * Hardware: Arduino + ESP8266-01
 * Sensors: MQ2, MQ5, MQ135, GP2Y1010AU01, DHT11
+* Database: MySQL
 
 ## Clone the project
 
@@ -32,6 +33,20 @@ Install node dependencies using the following command
 npm install 
 ```
 
+## env.js file
+Add an env.js file where you add the following:
+
+* BASE_URL - usually your ip addres in a "http://192.x.x.x:3000" format
+* SERVER_URL - the server url available from the ESP Wi-Fi module
+* MAILTRAP_API
+* TWILIO_SID
+* TWILIO_AUTH_TOKEN
+*TWILIO_MSG_SERVICE
+
+## Database
+
+The database schema is available in the database directory in the database_schema.txt file, there you can find all database tables and the SQL code to create them.
+..
 ## Usage
 
 Two terminals are needed to run the application, for backend and frontend
