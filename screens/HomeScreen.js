@@ -83,17 +83,17 @@ export default function HomeScreen() {
   const calculateAirQuality = (data) => {
     let score = -1;
 
-    if (data.MQ2 <= 500) score += 2;
-    else if (data.MQ2 <= 100) score += 1;
+    if (data.MQ2 <= 100) score += 2;
+    else if (data.MQ2 <= 200) score += 1;
 
-    if (data.MQ5 <= 50) score += 2;
-    else if (data.MQ5 <= 100) score += 1;
+    if (data.MQ5 <= 100) score += 2;
+    else if (data.MQ5 <= 200) score += 1;
 
-    if (data.MQ135 <= 50) score += 2;
-    else if (data.MQ135 <= 100) score += 1;
+    if (data.MQ135 <= 100) score += 2;
+    else if (data.MQ135 <= 200) score += 1;
 
-    if (data.DustDensity <= 30) score += 2;
-    else if (data.DustDensity <= 80) score += 1;
+    if (data.DustDensity <= 100) score += 2;
+    else if (data.DustDensity <= 200) score += 1;
 
     console.log("SCORE = ", score);
     if (score + 1 >= 7) return "EXCELLENT";
